@@ -1,7 +1,7 @@
 # Datomic's Introduction and Architecture
 
 ### Agenda
-![Alt](https://ibb.co/4tZWX0M)
+![Agenda](https://www.imagemhost.com.br/image/rDK2OC)
 This is the agenda for this session:
 - **What is Datomic?** This session starts with an overview of Datomic.
 - **Information model**: We are also going to talk about the information model of Datomic. This is really the most important thing about a database. If the information model doesn't let you find out answers to questions you would like to ask about your database, then its operational characteristics are not gonna help you very much, and the mechanics of using it are not gonna help. 
