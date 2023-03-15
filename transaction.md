@@ -6,10 +6,10 @@ Welcome to the third part of the Datomic training series. With the basics out of
 We will also discuss how Datomic handles identity and the related question of uniqueness. Finally, we will cover database functions and reified transactions. 
 
 ### Transactions
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.01.37.png)
 
 ### ACID
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.01.56.png)
 
 Datomic transactions are **ACID**. ACID is an acronym, something that most SQL databases do, and there are four properties:
 
@@ -26,35 +26,35 @@ If 0 is chaos, 3 is what we call "serializable". That means the things that happ
 These are the ACID properties. It makes the software easy to write and to reason about. One of the ideas behind Datomic is that the massive write scale is not the only thing you might want to change about SQL databases.
 
 ### Assertion and Retraction
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.02.22.png)
 Transactions are always at the bottom, just collections of assertions and retractions. You can write them this way, you can write in a list form or a tuple form. This is to add or retract. After that, we write the entity ID, the attribute, and the value. Note that of the five things that actually get stored in Datomic, only four of them are present here: add or retract, entity, attribute, and value. What is missing? Time, or transaction. You can't add that because the transactor is in charge of that. The transactor has to do that so you don't get to specify that, you get to do this, and you will get back a report that tells you when that happened and where the transaction order is.
 
 ### Entity maps
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.02.38.png)
 
 You can make multiple statements about the same entity with a map. Quite often, especially if you are transacting data by hand, you are going to use the map form because it is more convenient to say multiple things about the same entity. If you say 6 things about the same entity, how many things do you have to make if you make a datom at the time? 6 x 4 is 24. Using the map 6 x 2 is 12. You just put attributes and values on a map. 
 
 ##### Lists vs. Entity Map
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.02.54.png)
 
 These can also be nested. So if you look at the **top**, you have a list of 4-tuple assertions: add, entity ID, attribute, and value. Looking at the **bottom** you have the equivalent map form. What is the thing that actually gets stored in a database? It is always datoms, because Datomic databases are a set of datoms. But in many cases, both on the input side and the output side, having this entity map form is convenient. And it is also closely aligned with what you are used to if you are coming from object-oriented programming.
 
 ### Cross Reference 
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.03.09.png)
 If you need to make a cross-reference, you can use the same `:db/id` twice, or more than twice in a transaction. Here we are creating "Bob", whose name is Bob, and we are creating Bob's spouse. We are doing both of them in the same transaction. We are also specifying the spouse relationship between each other, which means that I need to link them up, but these IDs don't exist yet. If I made these IDs and came back later I can use the lookup, so we can use the numerical value of the ID. But at the time I am making Bob, the transaction that is gonna make Alice hasn't run yet because it is the same transaction, and vice-versa. 
 
 Here we are using Bob as the person's spouse. Person spouse is a reference attribute. We are putting a string value in it, and Datomic will see that it is a temp ID. That temp ID had better match the temp ID that appears as an entity ID; in this case, `:db/id`. `:db/id` is special, `:db/id` is not really an attribute. It is a way of linking the entity to this map. This map is attribute, value, attribute, value, attribute, value.
 
 ### Nesting 
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.03.25.png)
 
 The super-nice thing about these entity maps is that they can nest other maps. So here we are creating an order. This is making an order which is an entity that has 2 new line items: chocolate and whisky. Chocolate and whisky, in this case, are variables that were set earlier in the program that represent the IDs of those things that we want to order. Because it is nested, this will automatically make the relationships for you.
 
 ### Identity
-image
-
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.03.43.png)
 How to keep track of who is who? There are several ways to do so and it is super important to understand the difference between them.
 
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.04.01.png)
 
 Datomic has its own notion of identity that is relative only to the database and you should treat it as opaque. It happens to be a 64-bit number but you shouldn't treat it as a number that you should do math with. It is an opaque identifier assigned by Datomic.
 
@@ -77,7 +77,7 @@ If you go back to the analogy with a program, if you compile your program, your 
 Let's imagine generating a random string or a keyword name for every entity in the system. Now you don't have a database anymore. What do you have? You have a big in-memory HashMap. That is not what idents are for. It is important to use idents in the right way. In Datomic there could be more than ten thousand idents in a single system. We do not want to have a 1-to-1 relationship between idents and entities. 
 
 ### Built-in tx Functions 
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.04.19.png)
 
 When talking about transaction functions, you want to have richer semantics than just asserting or retracting. The canonical example of this is you want to modify a value in the database based on its past value. In Datomic you don't have to take someone's 100 dollars and say they now have 110. You can deposit ten dollars and have the balance updated depending on what the value was before. This is what transaction functions are for: they allow you to say: 
 
@@ -94,9 +94,9 @@ That means that the transaction functions have to run in the transactor because 
 There are all kinds of other things you might wanna use transaction functions for. Things like validating the presence of multiple attributes to say that a particular entity is fully formed. Or validating relationships between attributes saying that if an entity has this, the other thing has to have a certain value.
 
 ### Reified Transactions
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.04.35.png)
 
-##### :db/txInstant
+#### :db/txInstant
 Every transaction in Datomic is an entity. Just like all the other entities in the system. You have the entity ID, attribute, value, and transaction in a datom. That transaction value is a reference to an entity that gets created whenever a transaction happens. Which means that if you put 6 datoms in a system on a transaction, how many datoms are going to be actually added? At least 7. The one automatically added holds a value to the `:db/txInstant` attribute, which is the wall clock time on the transactor when the data was added.
 
 The transaction identity is non-decreasing. So you can walk up to a bunch of transactions and figure out which one came first just by its numerical value, and that is fully consistent. Or you can ask when it happened if you trust the clock in your transactor by looking at the value for `:db/txInstant`.   
@@ -104,17 +104,17 @@ The transaction identity is non-decreasing. So you can walk up to a bunch of tra
 Also, Datomic will not let you cheat time. You cannot walk up to the transactor and say "it is 2014" for a certain bunch of data, then turn the clock back to 2012. The minute you try to assert a piece of data that is older in the wall clock time, Datomic will not allow it. We can't enforce that the clock isn’t cracked, but we can enforce that the clock only moves forward. If you accidentally screw up your clock, you are going to be stopped.
 
 ### Transaction Attributes
-image
+![Alt](https://github.com/nubank/technical-learning-day-of-datomic/blob/main/Screenshot%202023-03-15%20at%2009.04.51.png)
 
 Here are two examples of using the transaction entity: 
 
-##### Example 1: 
+#### Example 1: 
 
 If you refer to the `:db/id` `'datomic.tx`, that name is special. Strings that begin with Datomic should not be used by you as temp IDs unless you are saying something about a transaction. Datomic says: make these attributes part of the transaction. When saying `:publish/at`, you are saying that for some other users of the system, I want this to be visible only as some date, which is `:publish/at`.
 
 There is a need to enforce that when you have a query that says: find me transactions and filter out the ones that say they are not published yet. It's possible to do that because this information has been hung onto a transaction.
 
-##### Example 2: 
+#### Example 2: 
 The second example is overriding time. So you are allowed to set up the wall clock time. We are setting up the wall clock here to the first second in February of 2013. Typically the only time you are going to override `txIstant` is when importing data. 
 
 
